@@ -1,31 +1,32 @@
-using System.IO;
-
 namespace MIDILib.tests;
 
-public class MIDIParserFacts
+public class MIDILibFacts
 {
-    public static IEnumerable<object[]> TestMIDIs()
+    public class MIDIParserFacts
     {
-        string filepath = Directory.GetCurrentDirectory() + "\\midi";
-
-        DirectoryInfo di = new(filepath);
-
-        IEnumerable<object[]> testMIDIs = [];
-        foreach (var file in di.GetFiles("*.mid"))
+        public static IEnumerable<object[]> TestMIDIs()
         {
-            testMIDIs = [.. testMIDIs, [file.FullName]];
+            string filepath = Directory.GetCurrentDirectory() + "\\midi";
+
+            DirectoryInfo di = new(filepath);
+
+            IEnumerable<object[]> testMIDIs = [];
+            foreach (var file in di.GetFiles("*.mid"))
+            {
+                testMIDIs = [.. testMIDIs, [file.FullName]];
+            }
+
+            return testMIDIs;
         }
 
-        return testMIDIs;
-    }
-
-    public class Parse : MIDIParserFacts
-    {
-        [Theory]
-        [MemberData(nameof(TestMIDIs))]
-        public void ReturnsMIDIFile(string filepath)
+        public class Parse : MIDIParserFacts
         {
-            Assert.IsType<MIDIFile>(MIDIParser.Parse(filepath));
+            [Theory]
+            [MemberData(nameof(TestMIDIs))]
+            public void ReturnsMIDIFile(string filepath)
+            {
+                Assert.IsType<MIDIFile>(MIDIParser.Parse(filepath));
+            }
         }
     }
 }
