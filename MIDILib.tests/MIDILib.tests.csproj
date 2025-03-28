@@ -24,4 +24,8 @@
     <ProjectReference Include="..\MIDILib\MIDILib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestMIDIs\" />
+  </ItemGroup>
+
 </Project>
