@@ -1,4 +1,4 @@
-namespace MIDILib;
+namespace MIDILib.Chunks;
 
 public class MIDITrack : IMIDIChunk
 {
@@ -7,5 +7,10 @@ public class MIDITrack : IMIDIChunk
     public MIDITrack(int length, byte[] content)
     {
         Length = length;
+    }
+
+    private void ParseBytes(byte[] bytes)
+    {
+
     }
 }

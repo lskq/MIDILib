@@ -1,4 +1,4 @@
-namespace MIDILib;
+namespace MIDILib.Chunks;
 
 public interface IMIDIChunk
 {

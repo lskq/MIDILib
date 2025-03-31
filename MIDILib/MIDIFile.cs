@@ -1,3 +1,4 @@
+using MIDILib.Chunks;
 using System.Text;
 
 namespace MIDILib;
@@ -8,11 +9,13 @@ public class MIDIFile
 
     public MIDIFile(byte[] bytes)
     {
-        ParseBytes(bytes);
+        Chunks = ParseBytes(bytes);
     }
 
-    private void ParseBytes(byte[] bytes)
+    public static IMIDIChunk[] ParseBytes(byte[] bytes)
     {
+        IMIDIChunk[] chunks = [];
+
         var ascii = new ASCIIEncoding();
 
         for (int i = 0; i < bytes.Length;)
@@ -41,9 +44,11 @@ public class MIDIFile
                 chunk = new MIDIAlien(type, length, data);
             }
 
-            Chunks = [.. Chunks, chunk];
+            chunks = [.. chunks, chunk];
 
             i += 8 + length;
         }
+
+        return chunks;
     }
 }

@@ -1,4 +1,4 @@
-namespace MIDILib;
+namespace MIDILib.Chunks;
 
 public class MIDIAlien(string type, int length, byte[] content) : IMIDIChunk
 {
