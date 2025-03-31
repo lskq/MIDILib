@@ -17,13 +17,28 @@ public class MIDIParserFacts
         return testMIDIs;
     }
 
-    public class Parse : MIDIParserFacts
+    public class ParseFile : MIDIParserFacts
     {
         [Theory]
         [MemberData(nameof(TestMIDIs))]
         public void ReturnsMIDIFile(string name, string path)
         {
-            Assert.IsType<MIDIFile>(MIDIParser.Parse(path + name));
+            Assert.IsType<MIDIFile>(MIDIParser.ParseFile(path + name));
+        }
+    }
+
+    public class ParseBytes : MIDIParserFacts
+    {
+        [Theory]
+        [MemberData(nameof(TestMIDIs))]
+        public void ReturnsMIDIFile(string name, string path)
+        {
+            using FileStream fs = File.OpenRead(path + name);
+
+            byte[] bytes = new byte[fs.Length];
+            fs.Read(bytes, 0, bytes.Length);
+
+            Assert.IsType<MIDIFile>(MIDIParser.ParseBytes(bytes));
         }
     }
 }
