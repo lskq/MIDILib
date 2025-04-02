@@ -1,6 +1,6 @@
 namespace MIDILib.Chunks;
 
-public class MIDIAlien(string type, int length, byte[] content) : IMIDIChunk
+public class AlienChunk(string type, int length, byte[] content) : IChunk
 {
     public string Type { get; } = type;
     public int Length { get; } = length;

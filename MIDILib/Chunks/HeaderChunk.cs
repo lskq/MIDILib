@@ -1,6 +1,6 @@
 namespace MIDILib.Chunks;
 
-public class MIDIHeader : IMIDIChunk
+public class HeaderChunk : IChunk
 {
     public string Type { get; } = "MThd";
     public int Length { get; }
@@ -13,7 +13,7 @@ public class MIDIHeader : IMIDIChunk
                                 (Format == 2) ? "Multiple Patterns" : "Unknown";
     public string DivisionType => (Division > 0x7FFF) ? "SMPTE" : "Ticks per quarter-note";
 
-    public MIDIHeader(int length, byte[] content)
+    public HeaderChunk(int length, byte[] content)
     {
         Length = length;
         Format = content[0] * 2 + content[1];

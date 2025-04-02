@@ -1,6 +1,8 @@
+using System;
+
 namespace MIDILib.Events;
 
-public interface IMIDIEvent
+public class MIDIChannelMessage : IEvent
 {
     public int DeltaTime { get; }
     public int Length { get; }

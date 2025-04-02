@@ -5,16 +5,16 @@ namespace MIDILib;
 
 public class MIDIFile
 {
-    public IMIDIChunk[] Chunks { get; set; } = [];
+    public IChunk[] Chunks { get; set; } = [];
 
     public MIDIFile(byte[] bytes)
     {
         Chunks = ParseBytes(bytes);
     }
 
-    public static IMIDIChunk[] ParseBytes(byte[] bytes)
+    public static IChunk[] ParseBytes(byte[] bytes)
     {
-        IMIDIChunk[] chunks = [];
+        IChunk[] chunks = [];
 
         var ascii = new ASCIIEncoding();
 
@@ -29,19 +29,19 @@ public class MIDIFile
 
             byte[] data = bytes[(i + 8)..(i + 8 + length)];
 
-            IMIDIChunk chunk;
+            IChunk chunk;
 
             if (type == "MThd")
             {
-                chunk = new MIDIHeader(length, data);
+                chunk = new HeaderChunk(length, data);
             }
             else if (type == "MTrk")
             {
-                chunk = new MIDITrack(length, data);
+                chunk = new TrackChunk(length, data);
             }
             else
             {
-                chunk = new MIDIAlien(type, length, data);
+                chunk = new AlienChunk(type, length, data);
             }
 
             chunks = [.. chunks, chunk];

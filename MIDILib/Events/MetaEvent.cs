@@ -1,18 +1,16 @@
-using System.Text;
-
 namespace MIDILib.Events;
 
-public class MIDISysexEvent : IMIDIEvent
+public class MetaEvent : IEvent
 {
     public int DeltaTime { get; }
+    public int Type { get; }
     public int Length { get; }
     public byte[] Bytes { get; }
 
-    public string BytesASCII => new ASCIIEncoding().GetString(Bytes, 0, Bytes.Length);
-
-    public MIDISysexEvent(int deltaTime, int length, byte[] bytes)
+    public MetaEvent(int deltaTime, int type, int length, byte[] bytes)
     {
         DeltaTime = deltaTime;
+        Type = type;
         Length = length;
         Bytes = bytes;
     }
