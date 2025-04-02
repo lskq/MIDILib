@@ -19,10 +19,10 @@ public class MIDIEvent : IEvent
 
     public (int deltaTime, int type, int length) ParseBytes(byte[] bytes)
     {
-        int deltaTime = MIDIMath.NextVlqToInt(bytes, out int index);
-        int type = bytes[index] > 127 ? bytes[index] : 0;
+        int deltaTime = MIDIMath.NextVlqToInt(bytes, out int i);
+        int type = bytes[i] > 127 ? bytes[i] : 0;
 
-        int length = bytes[index..].Length;
+        int length = bytes[i..].Length;
         if (type != 0) length -= 1;
 
         return (deltaTime, type, length);
