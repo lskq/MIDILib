@@ -2,12 +2,18 @@ using MIDILib.Events;
 
 namespace MIDILib.Chunks;
 
-public class TrackChunk(byte[] bytes) : IChunk
+public class TrackChunk : IChunk
 {
-    public byte[] Bytes { get; } = bytes;
-    public IEvent[] Events => null;//ParseBytes(Bytes);
+    public byte[] Bytes { get; }
+    public IEvent[] Events { get; }
 
-    private IEvent[] ParseBytes(byte[] bytes)
+    public TrackChunk(byte[] bytes)
+    {
+        Bytes = bytes;
+        Events = ParseBytes(Bytes);
+    }
+
+    public IEvent[] ParseBytes(byte[] bytes)
     {
         IEvent[] events = [];
 
@@ -17,44 +23,42 @@ public class TrackChunk(byte[] bytes) : IChunk
         int len = bytes.Length;
         for (int i = 8; i < len;)
         {
-            int deltaTime = MIDIMath.NextVlqToInt(bytes[i..], out int index);
+            MIDIMath.NextVlqToInt(bytes, out int j, i);
 
-            IEvent ev = null;
+            status = bytes[j] > 127 ? bytes[j] : status;
+            running = bytes[j] <= 127;
 
-            status = bytes[index] > 127 ? bytes[index] : status;
-            running = bytes[index] <= 127;
-
-            int increment = 0;
+            int increment;
+            IEvent ev;
 
             if (status == 0xF0 || status == 0xF7)
             {
-                int length = MIDIMath.NextVlqToInt(bytes[(index + 1)..], out index);
-                byte[] byteOutput = bytes[index..(index + length)];
+                int length = MIDIMath.NextVlqToInt(bytes, out int k, j + 1);
 
-                ev = new SysexEvent(deltaTime, length, byteOutput);
+                ev = new SysexEvent(bytes[i..(k + length)]);
 
-                increment = index + length;
+                increment = -i + k + length;
             }
             else if (status == 0xFF)
             {
-                int type = bytes[index + 1];
-                int length = MIDIMath.NextVlqToInt(bytes[(index + 2)..], out index);
-                byte[] byteOutput = bytes[index..(index + length)];
+                int length = MIDIMath.NextVlqToInt(bytes, out int k, j + 2);
 
-                ev = new MetaEvent(deltaTime, type, length, byteOutput);
+                ev = new MetaEvent(bytes[i..(k + length)]);
 
-                increment = index + length;
+                increment = -i + k + length;
             }
             else
             {
-                byte[] byteOutput;
-
                 if (running)
-                    byteOutput = bytes[index..(index + 2)];
+                {
+                    ev = new MIDIEvent(bytes[i..(j + 2)]);
+                    increment = -i + j + 2;
+                }
                 else
-                    byteOutput = bytes[(index + 1)..(index + 3)];
-
-                ev = new MIDIEvent(deltaTime, status, 2, byteOutput);
+                {
+                    ev = new MIDIEvent(bytes[i..(j + 3)]);
+                    increment = -i + j + 3;
+                }
             }
 
             events = [.. events, ev];

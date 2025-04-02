@@ -2,14 +2,14 @@ namespace MIDILib;
 
 public static class MIDIMath
 {
-    public static int NextVlqToInt(byte[] bytes, out int index)
+    public static int NextVlqToInt(byte[] bytes, out int nextIndex, int startIndex = 0)
     {
-        index = 0;
+        nextIndex = -1;
 
         int total = 0;
         int len = bytes.Length;
 
-        for (int i = 0; i < len; i++)
+        for (int i = startIndex; i < len; i++)
         {
             byte b = bytes[i];
             if (b > 0x7F)
@@ -21,10 +21,13 @@ public static class MIDIMath
             {
                 // Msb = 0, final octet
                 total += b;
-                index = i + 1;
+                nextIndex = i + 1;
                 break;
             }
         }
+
+        if (nextIndex == -1)
+            throw new ArgumentException("No terminating octet found.");
 
         return total;
     }

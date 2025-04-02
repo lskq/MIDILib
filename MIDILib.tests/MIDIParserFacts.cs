@@ -1,3 +1,5 @@
+using MIDILib.Chunks;
+
 namespace MIDILib.tests;
 
 public class MIDIParserFacts
@@ -24,6 +26,22 @@ public class MIDIParserFacts
         public void ReturnsMIDIFile(string name, string path)
         {
             Assert.IsType<MIDIFile>(MIDIParser.ParseFile(path + name));
+        }
+
+        [Theory]
+        [MemberData(nameof(TestMIDIs))]
+        public void ReturnedMIDILengthEqualsByteArrayLengthPlusEight(string name, string path)
+        {
+            MIDIFile midi = MIDIParser.ParseFile(path + name);
+
+            int expected = 0;
+            int actual = 0;
+
+            foreach (IChunk chunk in midi.Chunks)
+            {
+                expected += chunk.Bytes.Length;
+                actual += 8 + chunk.Length;
+            }
         }
     }
 
