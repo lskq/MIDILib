@@ -2,32 +2,27 @@ using MIDILib.Events;
 
 namespace MIDILib.Chunks;
 
-public class TrackChunk : IChunk
+public class TrackChunk(byte[] bytes) : IChunk
 {
-    public string Type { get; } = "MTrk";
-    public int Length { get; }
-
-    public IEvent[] Events { get; }
-    public TrackChunk(int length, byte[] content)
-    {
-        Length = length;
-        Events = ParseBytes(content);
-    }
+    public byte[] Bytes { get; } = bytes;
+    public IEvent[] Events => null;//ParseBytes(Bytes);
 
     private IEvent[] ParseBytes(byte[] bytes)
     {
         IEvent[] events = [];
 
-        byte status = 0;
+        int status = 0;
+        bool running = false;
 
         int len = bytes.Length;
-        for (int i = 0; i < len;)
+        for (int i = 8; i < len;)
         {
             int deltaTime = MIDIMath.NextVlqToInt(bytes[i..], out int index);
 
             IEvent ev = null;
 
             status = bytes[index] > 127 ? bytes[index] : status;
+            running = bytes[index] <= 127;
 
             int increment = 0;
 
@@ -48,11 +43,18 @@ public class TrackChunk : IChunk
 
                 ev = new MetaEvent(deltaTime, type, length, byteOutput);
 
-                increment = index + 1 + length;
+                increment = index + length;
             }
             else
             {
-                // Channel Message
+                byte[] byteOutput;
+
+                if (running)
+                    byteOutput = bytes[index..(index + 2)];
+                else
+                    byteOutput = bytes[(index + 1)..(index + 3)];
+
+                ev = new MIDIEvent(deltaTime, status, 2, byteOutput);
             }
 
             events = [.. events, ev];

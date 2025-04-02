@@ -1,48 +1,28 @@
 using MIDILib.Chunks;
-using System.Text;
 
 namespace MIDILib;
 
-public class MIDIFile
+public class MIDIFile(byte[] bytes)
 {
-    public IChunk[] Chunks { get; set; } = [];
-
-    public MIDIFile(byte[] bytes)
-    {
-        Chunks = ParseBytes(bytes);
-    }
+    public IChunk[] Chunks { get; set; } = ParseBytes(bytes);
 
     public static IChunk[] ParseBytes(byte[] bytes)
     {
         IChunk[] chunks = [];
 
-        var ascii = new ASCIIEncoding();
-
         for (int i = 0; i < bytes.Length;)
         {
-            string type = ascii.GetString(bytes[i..(i + 4)]);
+            string type = System.Text.Encoding.ASCII.GetString(bytes[i..(i + 4)]);
+            int length = BitConverter.ToInt32(Enumerable.Reverse(bytes[(i + 4)..(i + 8)]).ToArray());
 
-            byte[] lengthBytes = bytes[(i + 4)..(i + 8)];
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(lengthBytes);
-            int length = BitConverter.ToInt32(lengthBytes);
+            byte[] chunkBytes = bytes[i..(i + 8 + length)];
 
-            byte[] data = bytes[(i + 8)..(i + 8 + length)];
-
-            IChunk chunk;
-
-            if (type == "MThd")
+            IChunk chunk = type switch
             {
-                chunk = new HeaderChunk(length, data);
-            }
-            else if (type == "MTrk")
-            {
-                chunk = new TrackChunk(length, data);
-            }
-            else
-            {
-                chunk = new AlienChunk(type, length, data);
-            }
+                "MThd" => new HeaderChunk(chunkBytes),
+                "MTrk" => new TrackChunk(chunkBytes),
+                _ => new AlienChunk(chunkBytes),
+            };
 
             chunks = [.. chunks, chunk];
 
