@@ -18,15 +18,13 @@ public class TrackChunk : IChunk
         IEvent[] events = [];
 
         int status = 0;
-        bool running = false;
 
         int len = bytes.Length;
         for (int i = 8; i < len;)
         {
             MIDIMath.NextVlqToInt(bytes, out int j, i);
 
-            status = bytes[j] > 127 ? bytes[j] : status;
-            running = bytes[j] <= 127;
+            status = bytes[j] >= 0x80 ? bytes[j] : status;
 
             int increment;
             IEvent ev;
@@ -49,16 +47,14 @@ public class TrackChunk : IChunk
             }
             else
             {
-                if (running)
-                {
-                    ev = new MIDIEvent(bytes[i..(j + 2)]);
-                    increment = -i + j + 2;
-                }
-                else
-                {
-                    ev = new MIDIEvent(bytes[i..(j + 3)]);
-                    increment = -i + j + 3;
-                }
+                int size = 3;
+
+                if (0xDF >= status && status >= 0xC0) size -= 1;
+
+                if (status != bytes[j]) size -= 1;
+
+                ev = new MIDIEvent(bytes[i..(j + size)]);
+                increment = -i + j + size;
             }
 
             events = [.. events, ev];

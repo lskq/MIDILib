@@ -4,27 +4,23 @@ namespace MIDILib.Events;
 
 public class MIDIEvent : IEvent
 {
-    public byte[] Bytes { get; }
-
     public int DeltaTime { get; }
-    public int Type { get; }
-    public int Length { get; }
+    public int StatusByte { get; }
+
+    public byte[] DataBytes { get; }
 
     public MIDIEvent(byte[] bytes)
     {
-        Bytes = bytes;
-
-        (DeltaTime, Type, Length) = ParseBytes(Bytes);
+        (DeltaTime, StatusByte, DataBytes) = ParseBytes(bytes);
     }
 
-    public (int deltaTime, int type, int length) ParseBytes(byte[] bytes)
+    public (int deltaTime, int statusByte, byte[] dataBytes) ParseBytes(byte[] bytes)
     {
-        int deltaTime = MIDIMath.NextVlqToInt(bytes, out int i);
-        int type = bytes[i] > 127 ? bytes[i] : 0;
+        int deltaTime = MIDIMath.NextVlqToInt(bytes, out int index);
+        int statusByte = bytes[index] >= 0x80 ? bytes[index] : -1;
 
-        int length = bytes[i..].Length;
-        if (type != 0) length -= 1;
+        byte[] dataBytes = bytes[index..];
 
-        return (deltaTime, type, length);
+        return (deltaTime, statusByte, dataBytes);
     }
 }

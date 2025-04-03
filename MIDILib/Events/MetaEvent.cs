@@ -2,25 +2,27 @@ namespace MIDILib.Events;
 
 public class MetaEvent : IEvent
 {
-    public byte[] Bytes { get; }
-
     public int DeltaTime { get; }
-    public int Type { get; }
+    public int StatusByte { get; }
+
+    public int TypeByte { get; }
     public int Length { get; }
+
+    public byte[] DataBytes { get; }
 
     public MetaEvent(byte[] bytes)
     {
-        Bytes = bytes;
-
-        (DeltaTime, Type, Length) = ParseBytes(Bytes);
+        (DeltaTime, StatusByte, TypeByte, Length, DataBytes) = ParseBytes(bytes);
     }
 
-    public (int, int, int) ParseBytes(byte[] bytes)
+    public (int, int, int, int, byte[]) ParseBytes(byte[] bytes)
     {
         int deltaTime = MIDIMath.NextVlqToInt(bytes, out int index);
-        int type = bytes[index + 1];
-        int length = MIDIMath.NextVlqToInt(bytes[(index + 2)..], out index);
+        int statusByte = bytes[index];
+        int typeByte = bytes[index + 1];
+        int length = MIDIMath.NextVlqToInt(bytes, out index, index + 2);
+        byte[] dataBytes = bytes[index..];
 
-        return (deltaTime, type, length);
+        return (deltaTime, statusByte, typeByte, length, dataBytes);
     }
 }

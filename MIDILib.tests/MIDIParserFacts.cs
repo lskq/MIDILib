@@ -42,6 +42,8 @@ public class MIDIParserFacts
                 expected += chunk.Bytes.Length;
                 actual += 8 + chunk.Length;
             }
+
+            Assert.Equal(expected, actual);
         }
     }
 
