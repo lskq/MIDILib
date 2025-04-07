@@ -7,11 +7,18 @@ public class MIDIEvent : IEvent
     public int DeltaTime { get; }
     public int StatusByte { get; }
 
+    public bool RunningStatus { get; } = false;
     public byte[] DataBytes { get; }
 
-    public MIDIEvent(byte[] bytes)
+    public MIDIEvent(byte[] bytes, int runningStatusByte = -1)
     {
         (DeltaTime, StatusByte, DataBytes) = ParseBytes(bytes);
+
+        if (runningStatusByte != -1)
+        {
+            StatusByte = runningStatusByte;
+            RunningStatus = true;
+        }
     }
 
     public (int deltaTime, int statusByte, byte[] dataBytes) ParseBytes(byte[] bytes)

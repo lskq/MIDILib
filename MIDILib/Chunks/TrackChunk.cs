@@ -51,9 +51,17 @@ public class TrackChunk : IChunk
 
                 if (0xDF >= status && status >= 0xC0) size -= 1;
 
-                if (status != bytes[j]) size -= 1;
+                if (status != bytes[j])
+                {
+                    size -= 1;
+                    ev = new MIDIEvent(bytes[i..(j + size)], status);
 
-                ev = new MIDIEvent(bytes[i..(j + size)]);
+                }
+                else
+                {
+                    ev = new MIDIEvent(bytes[i..(j + size)]);
+                }
+
                 increment = -i + j + size;
             }
 
