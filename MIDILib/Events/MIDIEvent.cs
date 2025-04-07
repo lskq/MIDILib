@@ -19,7 +19,7 @@ public class MIDIEvent : IEvent
         int deltaTime = MIDIMath.NextVlqToInt(bytes, out int index);
         int statusByte = bytes[index] >= 0x80 ? bytes[index] : -1;
 
-        byte[] dataBytes = bytes[index..];
+        byte[] dataBytes = statusByte == -1 ? bytes[index..] : bytes[(index + 1)..];
 
         return (deltaTime, statusByte, dataBytes);
     }
