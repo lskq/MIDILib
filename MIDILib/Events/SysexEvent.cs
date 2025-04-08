@@ -22,11 +22,7 @@ public class SysexEvent : IEvent
         int statusByte = bytes[index];
         int length = MIDIMath.NextVlqToInt(bytes, out index, index + 1);
 
-        byte[] dataBytes;
-        if (statusByte == 0xF0 && bytes[^1] == 0xF7)
-            dataBytes = bytes[index..^1];
-        else
-            dataBytes = bytes[index..];
+        byte[] dataBytes = bytes[index..];
 
         return (deltaTime, statusByte, length, dataBytes);
     }
